@@ -21,7 +21,8 @@ const createAuction = async (event, context) => {
       title,
       id: uuid(),
       status: 'OPEN',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      highestBid: { amount: 0 },
     };
 
     await createAuctionAtDynamoDb(auction);

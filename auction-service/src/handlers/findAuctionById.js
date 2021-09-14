@@ -4,7 +4,7 @@ import { commonMiddleware } from "../middlewares/commonMiddleware";
 
 const dynamoDb = new DynamoDB.DocumentClient();
 
-const findDynamoAuctionById = async (id) => {
+export const findDynamoAuctionById = async (id) => {
   try {
     const result = await dynamoDb.get({
       TableName: process.env.AUCTIONS_TABLE_NAME,

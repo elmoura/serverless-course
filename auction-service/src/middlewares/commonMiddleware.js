@@ -5,5 +5,5 @@ import jsonBodyParser from "@middy/http-json-body-parser";
 
 export const commonMiddleware = (handler) => middy(handler)
   .use(httpErrorHandler())
-  .use(httpEventNormalizer)
+  .use(httpEventNormalizer())
   .use(jsonBodyParser());
