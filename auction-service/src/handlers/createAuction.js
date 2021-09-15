@@ -3,6 +3,8 @@ import { v4 as uuid } from 'uuid';
 import createHttpError from 'http-errors';
 import { commonMiddleware } from '../middlewares/commonMiddleware';
 import { AuctionsRepository } from '../repositories/auctionsRepository';
+import validator from '@middy/validator';
+import { createAuctionSchema } from '../schemas/createAuctionSchema';
 
 const auctionsRepository = new AuctionsRepository();
 
@@ -33,4 +35,9 @@ const createAuction = async (event, context) => {
   }
 };
 
-export const handler = commonMiddleware(createAuction);
+export const handler = commonMiddleware(createAuction).use(
+  validator({
+    inputSchema: createAuctionSchema,
+    ajvOptions: { strict: true }
+  })
+);
