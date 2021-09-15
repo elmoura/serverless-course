@@ -1,31 +1,27 @@
 
 import { v4 as uuid } from 'uuid';
-import { DynamoDB } from 'aws-sdk';
 import createHttpError from 'http-errors';
 import { commonMiddleware } from '../middlewares/commonMiddleware';
+import { AuctionsRepository } from '../repositories/auctionsRepository';
 
-const dynamoDb = new DynamoDB.DocumentClient();
-
-const createAuctionAtDynamoDb = async (auction) => {
-  return dynamoDb.put({
-    TableName: process.env.AUCTIONS_TABLE_NAME,
-    Item: auction
-  }).promise();
-};
+const auctionsRepository = new AuctionsRepository();
 
 const createAuction = async (event, context) => {
   try {
     const { title } = event.body;
+    const currentDate = new Date();
+    const endDate = new Date().setDate(currentDate.getDate() + 1);
 
     const auction = {
       title,
       id: uuid(),
       status: 'OPEN',
-      createdAt: new Date().toISOString(),
+      createdAt: currentDate.toISOString(),
+      endingAt: new Date(endDate).toISOString(),
       highestBid: { amount: 0 },
     };
 
-    await createAuctionAtDynamoDb(auction);
+    await auctionsRepository.create(auction);
 
     return {
       statusCode: 201,
