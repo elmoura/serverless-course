@@ -30,12 +30,17 @@ export class AuctionsRepository {
     }
   };
 
-  async listAll() {
+  async listByStatus(status) {
     try {
-      const result = await this.dynamoDbConnection.scan({
+      const params = {
         TableName: process.env.AUCTIONS_TABLE_NAME,
-      }).promise();
+        IndexName: 'statusAndEndDate',
+        KeyConditionExpression: '#status = :status',
+        ExpressionAttributeValues: { ':status': status },
+        ExpressionAttributeNames: { '#status': 'status' },
+      };
 
+      const result = await this.dynamoDbConnection.query(params).promise();
       return result.Items;
     } catch (error) {
       throw new createHttpError.InternalServerError(error);
@@ -66,7 +71,7 @@ export class AuctionsRepository {
     const currentDate = new Date();
     const findExpiredOpenAuctionsParams = {
       TableName: process.env.AUCTIONS_TABLE_NAME,
-      IndexName: 'statusAndDate',
+      IndexName: 'statusAndEndDate',
       KeyConditionExpression: '#status = :status AND endingAt <= :now',
       ExpressionAttributeValues: {
         ':status': 'OPEN',
@@ -81,10 +86,10 @@ export class AuctionsRepository {
     return result.Items;
   };
 
-  async closeAuction(auctionId) {
+  async closeAuction(auction) {
     const params = {
       TableName: process.env.AUCTIONS_TABLE_NAME,
-      Key: { id: auctionId },
+      Key: { id: auction.id },
       UpdateExpression: 'set #status = :status',
       ExpressionAttributeValues: {
         ':status': 'CLOSED',
