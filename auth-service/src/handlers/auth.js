@@ -26,7 +26,7 @@ export async function handler(event, context) {
     throw 'Unauthorized';
   }
 
-  const token = event.authorizationToken.replace('Bearer ', '');
+  const [, token] = event.authorizationToken.split(' ');
 
   try {
     const claims = jwt.verify(token, process.env.AUTH0_PUBLIC_KEY);
